@@ -1,0 +1,14 @@
+GO
+SELECT 
+Operation,
+[Transaction Id],
+[Transaction SID],
+[Transaction Name],
+ [Begin Time],
+   [SPID],
+   Description
+FROM fn_dblog (NULL, NULL)  
+WHERE [Transaction Name] = 'DROPOBJ' --with nolock;
+GO
+
+select count(*) from fn_dblog(null,null)

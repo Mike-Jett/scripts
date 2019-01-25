@@ -1,0 +1,18 @@
+select
+SQLInstanceName = @@SERVERNAME,
+
+SERVERPROPERTY('edition') As SQLEdition,
+Case 
+  when cast(serverproperty('productversion') as varchar) like '8.%' then 'SQL2000'
+       when cast(serverproperty('productversion') as varchar) like '9.%' then 'SQL2005'
+       when cast(serverproperty('productversion') as varchar)  like '10.0%' then 'SQL2008'
+       when cast(serverproperty('productversion') as varchar)  like '10.50.%' then 'SQL2008R2'
+       when cast(serverproperty('productversion') as varchar)  like '11.%' then 'SQL2012'
+  when cast(serverproperty('productversion') as varchar)  like '12.%' then 'SQL2014'
+       when cast(serverproperty('productversion') as varchar)  like '13.%' then 'SQL2016'
+	when cast(serverproperty('productversion') as varchar)  like '14.%' then 'SQL2017'
+	   ELSE 'SQL7.0' END +' '+
+  cast(SERVERPROPERTY('productlevel') as varchar(50))+' ('+ cast(SERVERPROPERTY('productversion') as varchar(50)) + ')' as SQLVersion
+	
+--,  name as 'Database Name' from sys.databases where name not in ('master', 'tempdb', 'model', 'msdb', 'DBAdmin_old', 'DBAdmin', 'Util', 'Util_old')
+ 

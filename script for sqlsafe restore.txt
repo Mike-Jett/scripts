@@ -1,0 +1,14 @@
+DECLARE @ResultCode	INT
+
+EXEC @ResultCode = [master].[dbo].[xp_ss_restore] 
+	@database = N'MortgageReportBuilder', 
+	@filename = N'\\gvlsmssqlt2\g$\MSSQL13.MSSQLSERVER\MSSQL\Backup\restore1042018\GVLSMSSQL02_MortgageReportBuilder_full.safe', 
+	@disconnectusers = N'1', 
+	@replace = N'1', 
+	@server = N'gvlsmssqlt2', 
+	@encryptedrestorepassword = N'3TbTxCjSxcB2zsrMEJu9iV6L6QxMDe2vvM+ncz8PbFc=', 
+	@windowsusername = N'sms\mjett', 
+	@encryptedwindowspassword = N'anLtdUkHuU6l6bIDMsUlscPiLwuzo2jh'
+
+IF(@ResultCode != 0)
+	RAISERROR('One or more operations failed to complete.', 16, 1);

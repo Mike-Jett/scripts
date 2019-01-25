@@ -1,0 +1,4 @@
+select schema_name(SCHEMA_ID) as [Schema], OBJECT_NAME(sc.object_id) as [Table Name], sc.* 
+	from sys.columns sc 
+		join  sys.tables st on st.object_id = sc.object_id
+	where OBJECT_NAME(sc.object_id) = 'PreboardACH'

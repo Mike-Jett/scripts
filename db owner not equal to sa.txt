@@ -1,0 +1,11 @@
+-- looks for DB owner not equal to SA and provides the command to change to sa
+select name as DBName,
+	suser_sname(owner_sid) as existingOwner,
+	N'ALTER Authorization on database::'
+	+ QUOTENAME(name) + ' to '
+	+QUOTENAME((select name
+					from sys.sql_logins where sid = 0x01
+				)) as Scripttochange
+				from sys.databases 
+				where database_id > 4
+				and owner_sid <> 0x01;

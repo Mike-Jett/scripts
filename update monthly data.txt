@@ -1,0 +1,94 @@
+-- SR518405
+
+select * from  DBO.[cbrReportingPaused]  where PauseEndDate ='2017-04-15 00:00:00.000'
+select count (1) from  DBO.[cbrReportingPaused]  WHERE ReportingPausedID IN ('2233291',
+'1996061',
+'2001256',
+'1938532',
+'1938594',
+'1938625',
+'1938934',
+'1938880',
+'2233269',
+'2233268',
+'2233286',
+'2233244')
+
+/*
+
+
+
+/* Pause 
+
+BEGIN TRAN INS1
+INSERT INTO CBR.DBO.CBRREPORTINGPAUSED (AcctID, PauseStartDate, CreatedBy, PauseReason)
+SELECT AcctID, PauseStartDate, CreatedBy, PauseReason FROM Sandbox.dbo.cbrReportingPaused_temp
+
+--34
+COMMIT TRAN INS1
+
+*/
+
+
+-- Update the ReportingpausedIDs on the UnPause Tab
+-- PauseEndDate: Noted on the UnPauseTab"
+BEGIN TRAN UPD1
+UPDATE cbrReportingPaused SET PauseEndDate = '2017-04-15 00:00:00.000' where ReportingPausedID IN ( 
+'2233291',
+'1996061',
+'2001256',
+'1938532',
+'1938594',
+'1938625',
+'1938934',
+'1938880',
+'2233269',
+'2233268',
+'2233286',
+'2233244')
+
+
+-- 12
+
+COMMIT TRAN UPD1
+
+--2
+/*Exclude 
+"Please add these accounts to the following table - 
+
+CINSHRSQL20/CBR/cbrReportingExclusions
+ExclusionStartDate: Noted on Exclusions tab
+Created By: Noted on Exclusions tab
+Exclusion Reason:Noted on Exclusions tab
+Exclusion Source: Noted on Exclusions tab
+"
+
+begin tran ins2
+INSERT INTO [cbrReportingExclusions] 
+(
+	[AcctID], 
+	[ExclusionStartDate],
+	[ExclusionEndDate],
+	[CreatedBy],
+	[ExclusionReason],
+	[ExclusionSource]
+)
+SELECT 
+	   [AcctID]
+	  ,[ExclusionStartDate]
+	  ,[ExclusionEndDate]
+      ,[CreatedBy]
+      ,[ExclusionReason]
+      ,[ExclusionSource]
+  FROM [Sandbox].[dbo].[cbrReportingExclusions_temp]
+
+
+commit tran ins2
+
+
+
+*/
+--Select distinct  t.* from [cbrReportingExclusions]  c join Sandbox.dbo.cbrReportingExclusions_temp  t on t.AcctID  = c.AcctID 
+--and c.ExclusionStartDate =t.ExclusionStartDate where t.ExclusionStartDate ='2017-04-15 00:00:00.000'
+
+

@@ -1,0 +1,6 @@
+select rp.name as 'Role Name', mp.name as 'User' from sys.database_role_members rm
+	inner join sys.database_principals rp on rm.role_principal_id = rp.principal_id
+	inner join sys.database_principals mp on rm.member_principal_id = mp.principal_id 
+where rp.name ='db_datareader' and mp.type = 'G' -- rp.name gets role name mp.type = (S = SQL_USER, R = DATABASE_ROLE, U = WINDOWS_USER, G = WINDOWS_GROUP)
+
+--	sp_helprolemember 'db_datareader'

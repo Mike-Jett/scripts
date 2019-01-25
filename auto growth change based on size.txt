@@ -1,0 +1,50 @@
+SELECT
+    @@SERVERNAME as Instance
+	,DB.name as 'Database'
+	,mf.physical_name
+	,mf.state_desc  -- i need to change this to grab from sys.databases because master files does not report offline properly
+	,mf.name as 'file_name'
+	,mf.max_size
+	,cast(SUM(MF.size * 8 / 1024.0 )as decimal(18,2)) AS File_Size_MB
+	,cast(SUM(MF.growth * 8 / 1024.0 )as decimal(18,2)) AS Growth_File_Size_MB
+
+into #tempgrowth
+
+FROM sys.master_files MF
+		JOIN sys.databases DB ON DB.database_id = MF.database_id
+			WHERE DB.source_database_id is null -- exclude snapshots
+			--	and mf.physical_name like '%.ldf'  --to get just log files
+GROUP BY DB.name, mf.max_size, mf.physical_name, mf.state_desc, mf.growth, mf.name
+ORDER BY db.name
+
+
+select  * , 
+	case
+		
+		when File_Size_MB <= 50 -- less than 51 MB
+			then
+				N'Alter database [' + [Database] + '] modify file ( name = N''' +  file_name + ''', FILEGROWTH = 16MB )'
+		
+		when File_Size_MB <= 100 -- less than 101 MB
+			then
+				N'Alter database [' + [Database] + '] modify file ( name = N''' +  file_name + ''', FILEGROWTH = 32MB )'
+		
+		when File_Size_MB > 100 and file_size_mb <= 1024  -- 101 MB to 1 GB
+			then
+				N'Alter database [' + [Database] + '] modify file ( name = N''' +  file_name + ''', FILEGROWTH = 64MB )' 
+		
+		when file_size_mb > 1024 and file_size_mb <= 10240  -- 1 GB to 10 GB
+			then 
+				N'Alter database [' + [Database] + '] modify file ( name = N''' +  file_name + ''', FILEGROWTH = 256MB )' 
+		
+		when file_size_mb > 10240 and file_size_mb <= 102400  -- 10 GB to 100 B
+			then 
+				N'Alter database [' + [Database] + '] modify file ( name = N''' +  file_name + ''', FILEGROWTH = 512MB )' 
+		
+		else  -- anything over 100 GB
+				N'Alter database [' + [Database] + '] modify file ( name = N''' +  file_name + ''', FILEGROWTH = 1024MB )' 
+	
+	end as 'Commands to execute'
+	from #tempgrowth
+		order by file_name
+drop table #tempgrowth

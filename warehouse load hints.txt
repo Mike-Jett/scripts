@@ -1,0 +1,7 @@
+﻿use Util
+select * from util.dbo.utlAsyncJobMonitor with (nolock) where utlAsyncJobID = '5950' and GroupID = '10'  -- shows progress of what has ran
+
+select * from util.dbo.utlAsyncJobGroupMember  --total of what has to run
+select * from [dbo].[utlAsyncJobGroup] where utlAsyncJobID = '5950' -- wait times
+
+-- remember to run the main job from step 3 to update the log time, also check the util table to ensure no duplicates are entered

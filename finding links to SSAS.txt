@@ -1,0 +1,17 @@
+-- agent jobs
+select j.[enabled], j.[name], j.[description]
+     , js.[step_name], js.[subsystem], js.[server], js.[database_name]
+     , h.[run_date], h.[run_time], h.[run_status]
+  from [msdb].[dbo].[sysjobsteps] js
+  JOIN [msdb].[dbo].[sysjobs]     j  ON j.[job_id] = js.[job_id]
+OUTER APPLY ( SELECT TOP 1 * FROM [msdb].[dbo].[sysjobhistory] h
+                WHERE h.[job_id] = j.[job_id] ORDER BY [run_date] DESC, [run_time] DESC
+             ) h
+WHERE [subsystem] IN ( 'ANALYSISCOMMAND','ANALYSISQUERY' )
+-- linked server(s)
+select * from master.sys.servers ls WHERE ls.[provider] LIKE '%OLAP%'
+-- sprocs using OpenRowSet (aka unregistered linked server)
+DECLARE @ModuleUsage TABLE ( [Database] SYSNAME , [definition] ntext )
+INSERT INTO @ModuleUsage
+EXEC sp_MSforeachdb 'select [Database] = ''?'', [definition] from [?].[sys].[sql_modules] m WHERE m.[definition] LIKE ''%OPENROWSET%MSOLAP%'''
+SELECT * FROM @ModuleUsage

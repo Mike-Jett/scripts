@@ -1,0 +1,8 @@
+restore filelistonly from DISK = N'C:\Temp_backup_holder\SMS_App.bak' 
+
+alter database [SMS_App] set offline with rollback immediate;
+
+restore database [SMS_App] from disk = N'C:\Temp_backup_holder\SMS_App.bak' with 
+move 'SMS_App_Data' to 'G:\MSSQL11.MSSQLSERVER\MSSQL\DATA\SMS_Appdata.mdf',
+move 'SMS_App_Log' to 'F:\MSSQL11.MSSQLSERVER\MSSQL\DATA\SMS_Appdata.ldf',
+replace, stats = 5

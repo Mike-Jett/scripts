@@ -1,0 +1,8 @@
+use msdb
+select * from dbo.sysjobsteps 
+where command like '%501501%'
+
+-- use the jobid from above in the below to find the name of the job 
+
+select * from dbo.sysjobs
+where job_id ='3066425E-1EAF-4C47-8FA9-93225FCF69AB'

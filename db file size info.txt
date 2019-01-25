@@ -1,0 +1,13 @@
+SELECT
+    @@SERVERNAME as Instance
+	,DB_NAME(database_id) as 'database'
+	,physical_name
+	,state_desc
+	,name as 'file_name'
+	,max_size
+	,cast(SUM(size * 8 / 1024.0 )as decimal(18,2)) AS File_Size_MB
+	,cast(SUM(growth * 8 / 1024.0 )as decimal(18,2)) AS Growth_File_Size_MB
+from sys.master_files 
+--where physical_name like '%.mdf%' or physical_name like '%.ndf%'
+where physical_name like '%.ldf%'
+group by name,physical_name,state_desc,max_size, database_id

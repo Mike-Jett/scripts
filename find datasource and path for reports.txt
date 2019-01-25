@@ -1,0 +1,13 @@
+use ReportServer
+select 
+  catalog.Path
+  ,Catalog.name
+  ,cat1.Name datasource
+from
+  Catalog
+  join DataSource
+    on Catalog.ItemID = DataSource.ItemID
+  join Catalog cat1
+    on DataSource.Link = cat1.ItemID
+where
+  Catalog.Type = 2 and cat1.Name like '%sql06%'

@@ -1,0 +1,10 @@
+-- This will give the columns that are in a table and the schema it is in
+select 
+	st.object_id, 
+	st.name as 'Table Name', 
+	sch.name as 'schema', 	
+	sc.name as 'Column Name' 
+		from sys.tables st 
+	join sys.columns sc on st.object_id = sc.object_id
+	join sys.schemas sch on st.schema_id = sch.schema_id
+		where st.name like '%236%'  -- change to table name

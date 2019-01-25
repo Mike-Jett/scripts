@@ -1,0 +1,9 @@
+use msdb
+
+select sj.name, sj.enabled, sjs.schedule_id, sjs.next_run_date, sjs.next_run_time from sysjobs sj
+	join sysjobschedules sjs
+	on sj.job_id = sjs.job_id
+	
+	and sjs.next_run_time between 45000 and  90100
+order by  sjs.next_run_date, sjs.next_run_time desc
+	

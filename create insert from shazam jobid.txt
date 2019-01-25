@@ -1,0 +1,33 @@
+use Shazam
+
+declare @name as nvarchar(60);
+declare @tschem as nvarchar(20);
+declare @stype as nvarchar(20);
+declare @sschem as nvarchar(20);
+declare @desttype as nvarchar(1);
+
+declare @cmds as cursor;
+
+set @cmds = cursor for 
+select SourceTable, TargetSchema, SourceType_SysID, SourceSchema, DestinationLoadType_SysID from DataCopyTables where JobID = 5961000 
+
+open @cmds;
+
+fetch next from @cmds into @name, @tschem, @stype, @sschem, @desttype
+print 'use shazam'
+print 'begin tran i'
+while @@FETCH_STATUS = 0
+
+begin
+	print ('insert into shazam.dbo.DataCopyTables (JobID, TargetTable, TargetSchema, SourceType_SysID, SourceTable, SourceSchema, SourceText, SourceKeepIdentityValue, DropRecreateClusteredIndex,
+	DropRecreateOtherIndexes, CopySourceIndexes, BatchSize, KeepNulls, IsSourceOrdered, UseTABLOCK, CreatedDT, UpdatedDT, UserID, DestinationLoadType_SysID)
+	VALUES (60000040,''' + @name + '''' + ',' + '''' + @tschem + '''' + ',' + '' + @stype + '' + ',' + '''' + @name + ''',' + '''' + @sschem + '' + '''' + ',''''' 
+	+ ',1,1,1,0,5000,1,1,1,GETDATE(),GETDATE(),' + '''sms\MJett''' + ',' + @desttype +')')
+	fetch next from @cmds into @name, @tschem, @stype, @sschem, @desttype
+end
+print '--	commit tran i'
+print '--	rollback tran i'
+
+close @cmds;
+deallocate @cmds
+

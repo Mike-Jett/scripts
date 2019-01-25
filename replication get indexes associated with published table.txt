@@ -1,0 +1,37 @@
+SELECT  
+distinct i.name AS Index_Name
+,@@SERVERNAME as Instance
+,DB_NAME() AS Database_Name
+
+, sc.name AS Schema_Name
+, o.name AS Table_Name
+
+, i.type_desc AS Index_Type
+--, scol.name as column_published
+
+FROM sys.indexes i with (nolock)
+INNER JOIN sys.objects o ON i.object_id = o.object_id
+INNER JOIN sys.schemas sc ON o.schema_id = sc.schema_id
+ join sys.columns scol on o.object_id = i.object_id
+WHERE i.name IS NOT NULL
+AND o.name in(
+				'Account',
+				'AltAcctNumber',
+				'Borrower',
+				'Collection',
+				'Org',
+				'Org_OrgType_Account',
+				'pfgPlaceBatch_Document_Mapping',
+				'PlaceBatch',
+				'PlaceType',
+				'Portfolio',
+				'PortfolioSnapshot',
+				'Servicer',
+				'ServicerGroup'
+								)
+--and scol.is_replicated = 1
+and i.type_desc like 'non%'
+
+and sc.name like 'dbo'
+ORDER BY o.name, i.name
+

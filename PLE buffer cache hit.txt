@@ -1,0 +1,16 @@
+select object_name, cast(sum(cntr_value/60) as decimal(8,2)) as Minutes, counter_name
+	from sys.dm_os_performance_counters 
+		where counter_name = 'Page life expectancy' or counter_name = 'buffer cache hit ratio'
+		group by cntr_value, object_name, counter_name
+
+
+	
+--select * from sys.dm_os_sys_info
+
+
+--select * from sys.dm_os_wait_stats
+--select * from sys.dm_exec_query_stats
+--select * from sys.dm_io_virtual_file_stats
+--select * from sys.dm_os_performance_counters
+--sp_lock
+--dbcc tracestatus()

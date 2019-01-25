@@ -1,0 +1,19 @@
+DECLARE @trcfilename VARCHAR(1000);
+SELECT @trcfilename = path FROM sys.traces WHERE is_default = 1
+
+SELECT @@SERVERNAME, StartTime,
+DB_NAME(databaseid)as DatabaseName,
+Filename,
+SUM ((IntegerData*8)/1024) AS [Growth in MB],
+eventclass,
+(Duration/1000000)as [Duration in seconds] -- 1 second is 1,000,000 micro seconds.
+FROM ::fn_trace_gettable(@trcfilename, default)
+WHERE (EventClass = 92 OR EventClass = 93 or EventClass = 94 OR EventClass = 95)
+GROUP BY StartTime,Databaseid, Filename, IntegerData, Duration, EventClass
+order by StartTime
+
+
+--(92, 'Data File Auto Grow')
+--(93, 'Log File Auto Grow')
+--(94, 'Data File Auto Shrink')
+--(95, 'Log File Auto Shrink')

@@ -1,0 +1,29 @@
+SELECT COUNT(Name) AS ExecutionCount,
+       Name,
+       SUM(TimeDataRetrieval) AS TimeDataRetrievalSum,
+       SUM(TimeProcessing) AS TimeProcessingSum,
+       SUM(TimeRendering) AS TimeRenderingSum,
+       SUM(ByteCount) AS ByteCountSum,
+       SUM([RowCount]) AS RowCountSum
+	   ,UserName
+	   ,Path
+  FROM (SELECT TimeStart,
+               Catalog.Type,
+               Catalog.Name,
+			   Catalog.Path,
+               TimeDataRetrieval,
+               TimeProcessing,
+               TimeRendering,
+               ByteCount,
+               [RowCount]
+			   ,UserName
+          FROM Catalog
+               INNER JOIN 
+               ExecutionLog exl
+                 ON Catalog.ItemID = exl.ReportID
+         WHERE Type = 2
+		 and Name in ('Agency Slides','Agency Slides Mel','Agency Slides Test','Agency Slides v1','Agency Slides v2','Agency Slides v4','Agency Slides_V1','Agency Slides_V2','Agency_Cited_Complaints_Graph','CA Entry Start Date CPL Update','CA Entry Start Date CPL Update','Complaint_Reasons_Summary','Complaint_Source_And_Type_Six_Month_Trend','Complaint_Source_Trend','Complaint_Type_By_Group_Detail_Graph','Complaint_Type_By_Source_Trend','Complaint_Type_Total_By_Source','Corrective Action Detail CPL Update','Corrective Action Detail CPL WRI','Daily Due Date Report','Daily Plan','FDCPA_YTD_Abuse_Percentage','Inquiries Entered CPL Update','Suspect_Complaints_Resolved_Time','Unresolved_Complaint_Graph')
+       ) AS RE
+GROUP BY Name, UserName, Path
+ORDER BY COUNT(Name) DESC,
+         Name;

@@ -1,0 +1,9 @@
+create table #t (
+    DBName sysname not null
+)
+go
+exec sp_MSforeachdb 'use [?]; if OBJECT_ID(''.org'') is not null insert into #t (DBName) select ''?'''
+go
+select * from #t
+go
+drop table #t

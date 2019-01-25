@@ -1,0 +1,14 @@
+
+SELECT
+    DB.name
+	,mf.physical_name
+	,mf.state_desc
+	,mf.max_size
+	,cast(SUM(MF.size * 8 / 1024.0 )as decimal(18,2)) AS File_Size_MB
+	,cast(SUM(MF.growth * 8 / 1024.0 )as decimal(18,2)) AS Growth_File_Size_MB
+
+FROM sys.master_files MF
+		JOIN sys.databases DB ON DB.database_id = MF.database_id
+			WHERE DB.source_database_id is null -- exclude snapshots
+GROUP BY DB.name, mf.max_size, mf.physical_name, mf.state_desc, mf.growth
+ORDER BY db.name

@@ -1,0 +1,2 @@
+-- this will help you find if a command is called from another sp
+Select * from information_schema.ROUTINES where ROUTINE_DEFINITION like'%dbaDatabaseSpace%' 

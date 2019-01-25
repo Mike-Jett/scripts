@@ -1,0 +1,5 @@
+select * from sys.tables --where name like 'fact%'
+--name	object_id	principal_id	schema_id
+--factIMDMCubeLite	1813997939	NULL	7
+
+--select * from sys.all_columns where object_id = '1813997939' and system_type_id <> '56'

@@ -1,0 +1,13 @@
+SELECT
+table_name = so.name
+,trigger_name	= st.name
+,trigger_text	= sc.text
+,create_date	= st.create_date
+FROM sys.triggers st
+
+JOIN sysobjects so
+ON st.parent_id = so.id
+
+JOIN syscomments sc
+ON sc.id = st.[object_id]
+--where st.name like '%IlsChangeMonitor%'

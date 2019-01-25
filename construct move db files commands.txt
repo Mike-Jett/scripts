@@ -1,0 +1,61 @@
+/*  ------------------------------------------------------------------------------------------------------------
+--------  This will construct the alter commands to move database files (data and log), also creates the commands to take DB's offline and then back online 
+------------  Use caution when doing this I recommend taking backups of the DB's prior to moving the files
+------------  Likewise, document the files location prior to the move
+------------  ***********  Mike Jett 25 Apr 2018  ***********
+    ------------------------------------------------------------------------------------------------------------
+*/
+
+select DB_NAME(database_id) as [Database_Name], name as [Logical_Name], 
+	right(physical_name, CHARINDEX('\',reverse(physical_name))-1) as [Pyhsical_Name] -- extracting just the physical name
+	
+into #tempmove
+	from sys.master_files
+		where DB_NAME(database_id) not in ('master', 'msdb', 'model', 'tempdb')  --  excluding system databases 
+		--where DB_NAME(database_id) in ('master', 'msdb', 'model', 'tempdb')		-- only system database
+
+declare @directorydata varchar (125)
+declare @directorylog varchar (125)
+set @directorydata = 'E:\Microsoft SQL Server\MSSQL13.PROFXENGAGEMENT\MSSQL\DATA\' -- variable to input the directory path of the data files where you want to move the files to
+set @directorylog = 'E:\Microsoft SQL Server\MSSQL13.PROFXENGAGEMENT\MSSQL\LOG\'   -- variable to input the directory path of the log files where you want to move the files to
+
+select #tempmove.[Database_Name],
+		case
+		when #tempmove.[Pyhsical_Name] like '%.mdf' or #tempmove.[Pyhsical_Name] like '%.ndf'
+			then
+	N'Alter database [' + [database_Name] + '] modify file ( name = ''' + [Logical_name] + ''', filename =  ''' + @directorydata  + Pyhsical_Name +''')' 
+
+		when #tempmove.[Pyhsical_Name] like '%.ldf' 
+			then
+	N'Alter database [' + [database_Name] + '] modify file ( name = ''' + [Logical_name] + ''', filename =  ''' + @directorylog  + Pyhsical_Name +''')' 
+		
+		end  as '(1) Commands to move files',	
+			
+#tempmove.[logical_name],#tempmove.[Pyhsical_Name],
+		case
+		when #tempmove.[Pyhsical_Name] like '%.mdf' 
+			then
+	N'Alter database [' + [database_Name] + '] set offline with rollback immediate' -- Creating the commands to set databases offline
+		else	
+			N''
+		end as [(2)command to set DB offline],
+		
+		case
+		when #tempmove.[Pyhsical_Name] like '%.mdf' 
+			then
+	N'Alter database [' + [database_Name] + '] set online' -- Creating the commands to set databases offline
+		else	
+			N''
+	end as [(3)command to set DB online after physically moving the files]		
+
+from #tempmove
+
+select '  -- after executing you must set the databases offline and physically move the files then bring the databases back online --'
+	as [Warning!! -------- Warning!!-------- Warning!*!Warning!! -------!Warning!*!Warning!! ---- Warning!!-------- Warning!*!Warning!! ]
+
+drop table #tempmove
+
+-- after executing you must set the databases offline and physically move the files then bring the databases back online
+
+select DB_NAME(database_id) as [Database_Name], name as [Logical_Name], [physical_name] as [Physical location prior to move]
+	from sys.master_files

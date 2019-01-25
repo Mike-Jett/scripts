@@ -1,0 +1,7 @@
+select * from sys.dm_db_file_space_usage
+
+SELECT TOP 1000 su.session_id, su.database_id, su.user_objects_alloc_page_count + su.internal_objects_alloc_page_count / 129 AS tempdb_usage_MB, 
+	er.start_time, er.status, er.command, er.wait_type, er.percent_complete, er.blocking_session_id
+FROM sys.dm_db_session_space_usage su
+join sys.dm_exec_requests er on su.session_id = er.session_id
+ORDER BY user_objects_alloc_page_count + internal_objects_alloc_page_count DESC; 

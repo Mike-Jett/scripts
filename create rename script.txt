@@ -1,0 +1,9 @@
+--use dw
+--select name 
+--	into #tmp501
+--	select ('exec sp_rename ''dbo.' + name + '' + '''' +', ''' + name + '_old501' + '''') -- table rename
+--	select ('exec sp_rename ''dbo.' + name + '_vw' +  '''' +', ''' + name + '_vw_old501' + '''') -- view rename  do views first
+--	from sys.tables 
+--	from sys.views
+--where name in 
+--	('')

@@ -1,0 +1,30 @@
+alter database [ILSChangeMonitor]
+	set single_user with rollback immediate
+	exec master..sp_renamedb 'ILSChangeMonitor', 'IlsEventMonitor'
+alter database IlsEventMonitor 
+modify file (name =N'ILSChangeMonitor_data', newname=N'IlsEventMonitor_data')
+go
+alter database IlsEventMonitor 
+modify file (name =N'ILSChangeMonitor_log', newname=N'IlsEventMonitor_log')
+go
+alter database [IlsEventMonitor]
+	set offline with rollback immediate
+	/*change physical name
+	G:\MSSQL11.MSSQLSERVER\MSSQL\DATA\ILSChangeMonitor_data.mdf
+	F:\MSSQL11.MSSQLSERVER\MSSQL\DATA\ILSChangeMonitor_2.ldf
+	*/
+	alter database [IlsEventMonitor]
+	modify file (name = 'IlsEventMonitor_data', filename='G:\MSSQL11.MSSQLSERVER\MSSQL\DATA\IlsEventMonitor_data.mdf')
+	go
+	alter database [IlsEventMonitor]
+	modify file (name = 'IlsEventMonitor_log', filename='F:\MSSQL11.MSSQLSERVER\MSSQL\DATA\IlsEventMonitor_log.ldf')
+	go
+	alter database [IlsEventMonitor]
+	set online
+	alter database [IlsEventMonitor]
+	set multi_user 
+	select * from sys.master_files
+	where name like 'IlsEventMonitor_%' 
+	
+
+

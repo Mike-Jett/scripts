@@ -1,0 +1,5 @@
+select 
+	('Drop table [' + SCHEMA_NAME(schema_id) + '].' + '[' + name  +']'
+
+	) as Drop_stmt
+		from sys.tables where SCHEMA_NAME(schema_id) like '%wcaldwell%'

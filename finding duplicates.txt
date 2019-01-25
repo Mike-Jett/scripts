@@ -1,0 +1,10 @@
+use BKODS
+SELECT [bknCaseID]
+      ,[bknAcctID]
+            ,count(1) as cnt
+     
+  FROM [BCR].[bknCaseAcct]
+  with (nolock)
+  group by bknCaseID,[bknAcctID]
+  having count(1) > 1
+  order by cnt desc 

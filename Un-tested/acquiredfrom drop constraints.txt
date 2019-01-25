@@ -1,0 +1,16 @@
+use Service_July25
+--	must drop FK contraints to allow the update to happen 
+ALTER TABLE [Service_July25].[dbo].[SRPurchaseAdviceBatch] DROP CONSTRAINT [FK_SRPurchaseAdviceBatch_AcquiredFrom]
+--	1
+ALTER TABLE [Service_July25].[dbo].[SRSalesAdviceBatch] DROP CONSTRAINT [FK_SRSalesAdviceBatch_AcquiredFrom]
+--	2
+ALTER TABLE [Service_July25].[dbo].[SRSalesAdviceBatch] DROP CONSTRAINT [FK_SRSalesAdviceBatch_SRServicedBy]
+--	3
+ALTER TABLE [Service_July25].[dbo].[SRPurchaseAdviceBatch] DROP CONSTRAINT [FK_SRPurchaseAdviceBatch_SRServicedBy]
+--	4
+DROP TRIGGER [dbo].[AcquiredFrom_UTrig]
+--	5
+DROP TRIGGER [dbo].[SRBalanceControl_DTrig]
+--	6
+DROP TRIGGER [dbo].[AcquiredFrom_DTrig]
+--	7

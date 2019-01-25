@@ -1,0 +1,28 @@
+use Sandbox
+-- Command will create the temporary table 
+--CREATE TABLE [dbo].[TmpErrorLog]
+--([LogDate] DATETIME NULL,
+-- [ProcessInfo] VARCHAR(20) NULL,
+-- [Text] VARCHAR(MAX) NULL ) ;
+
+-- Command will insert the errorlog data into 
+
+declare @cnt int = 0
+while @cnt < 101
+	begin
+		INSERT INTO [sandbox].[dbo].[TmpErrorLog] ([LogDate], [ProcessInfo], [Text])
+		EXEC [master].[dbo].[xp_readerrorlog] @cnt ;
+	set @cnt = @cnt + 1
+	end
+
+-- retrieves the data from table
+--SELECT * FROM [Sandbox].[dbo].[TmpErrorLog]
+--order by logdate desc where [text] not like ['Login succeeded for user 'NT AUTHORITY\SYSTEM%']
+
+
+
+
+
+ --xp_enumerrorlogs    use to get the number of error log files
+
+ --exec xp_fixeddrives

@@ -1,0 +1,13 @@
+SELECT  
+(physical_memory_in_use_kb/1024) AS Memory_usedby_Sqlserver_MB,  
+(locked_page_allocations_kb/1024) AS Locked_pages_used_Sqlserver_MB,  
+(total_virtual_address_space_kb/1024) AS Total_VAS_in_MB,  
+process_physical_memory_low,  -- if 1 a process is not getting memory from sql
+process_virtual_memory_low  -- os based process
+FROM sys.dm_os_process_memory;
+
+
+--sp_configure  to see max mem
+
+--name			minimum		maximum		config_value	run_value
+--max server memory (MB)	128		2147483647	6600		6600

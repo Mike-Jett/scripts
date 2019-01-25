@@ -1,0 +1,21 @@
+declare @name varchar(40)
+
+declare db_cursor cursor for 
+select name 
+from master.dbo.sysdatabases
+	WHERE name NOT IN ('master','model','msdb','tempdb')  
+	order by name
+
+
+open db_cursor
+fetch next from db_cursor into @name
+
+while @@FETCH_STATUS = 0
+begin 
+	print 'alter database ' + @name + ' set compatibility_level = 140'
+
+	fetch next from db_cursor into @name
+end
+
+close db_cursor
+deallocate db_cursor

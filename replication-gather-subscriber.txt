@@ -1,0 +1,7 @@
+-- Run from Subscriber Database 
+SELECT distinct publisher, publisher_db, publication
+FROM dbo.MSreplication_subscriptions
+ORDER BY 1,2,3
+
+
+--select * from MSreplication_objects where article like '%SR%'

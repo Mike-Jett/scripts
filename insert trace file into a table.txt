@@ -1,0 +1,2 @@
+select * into Trace_Table_MJJ from :: fn_trace_gettable('C:\Users\mjett\Documents\SR328514 14 Dec 2014.trc',default )
+
