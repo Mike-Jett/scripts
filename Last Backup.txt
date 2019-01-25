@@ -1,0 +1,6 @@
+SELECT	@@SERVERNAME as [Instance], sdb.Name AS DatabaseName,
+		MAX(bus.backup_finish_date) AS LastBackUpTime
+FROM sys.sysdatabases sdb
+	LEFT OUTER JOIN msdb.dbo.backupset bus ON bus.database_name = sdb.name
+GROUP BY sdb.Name
+order by sdb.name

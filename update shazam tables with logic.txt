@@ -1,0 +1,35 @@
+use Shazam
+
+select  JobID, TargetTable, SourceTable 
+
+ into #shztmp
+	from DataCopyTables 
+	--	where JobID = 501501 
+	--	and TargetTable like 'ilsw%' 
+	--	and DestinationLoadType_SysID = 2 
+	--	and SourceType_SysID = 1
+	where JobID = 501501 
+		and TargetTable like 'ils%' 
+		and DestinationLoadType_SysID = 1 
+		and SourceType_SysID = 1
+	select * from #shztmp
+
+select JobID, TargetTable, SourceTable 
+	
+	into #shzjbtmp
+		from DataCopyTables where SourceTable = (select top 1 SourceTable from #shztmp)	
+
+	select @@ROWCOUNT as '# of jobs involved', * from #shzjbtmp
+
+	if @@ROWCOUNT = 1 and (select jobid from #shzjbtmp) = '501501'
+		 begin tran G
+		 update DataCopyTables
+set TargetTable = (select top 1 SourceTable from #shztmp)
+where JobID = 501501 and SourceTable = (select top 1 SourceTable from #shztmp)
+	commit tran G
+--	rollback tran G
+		select * from DataCopyTables where JobID = 501501 and SourceTable = (select top 1 SourceTable from #shztmp)
+		print 'commit transaction please'
+		select @@ROWCOUNT from #shztmp
+		
+drop table #shztmp	drop table #shzjbtmp

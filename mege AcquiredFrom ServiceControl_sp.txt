@@ -1,0 +1,234 @@
+USE [ServiceControl]
+GO
+
+/****** Object:  StoredProcedure [dbo].[Merge_table_Shazam_sp]    Script Date: 8/13/2018 1:51:58 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE procedure [dbo].[Merge_table_Shazam_sp]
+(
+@tblnme varchar(100)		-- input parameter = table name to be merged
+)
+/*
+This SP is used to merge data to the destination table from a staging table.  
+This is due to the FK constraints and cascade deletes into other tables from these parent tables.
+If data is matched in the target destination per the column used in the on condtion then the row is updated from the staging table to 
+the destination table.  
+If a row exists in the staging table but not in the destination table the row is inserted into the destination table.
+If a row exists in the destination table but not in the staging table then the row is deleted from the destination table
+*/
+as
+begin	
+	  begin try		
+		if  upper(@tblnme) = 'ACQUIREDFROM' 
+			begin
+				begin tran U
+					merge into Service_July25.dbo.AcquiredFrom as acqtarget
+						using ServiceControl.dbo.AcquiredFrom_Staging as acqsource
+						on acqtarget.code = acqsource.code
+						--When records are matched in both tables, update the records in the target table 
+						when matched then
+							update set 
+							 acqtarget.[AddLine1]				= acqsource.[AddLine1]
+							,acqtarget.[AddLine2]				= acqsource.[AddLine2]				
+							,acqtarget.[City]					= acqsource.[City]					
+							,acqtarget.[CityCode]				= acqsource.[CityCode]				
+							,acqtarget.[Code]					= acqsource.[Code]					
+							,acqtarget.[ContactName]			= acqsource.[ContactName]			
+							,acqtarget.[Country]				= acqsource.[Country]				
+							,acqtarget.[DefaultDiscount]		= acqsource.[DefaultDiscount]		
+							,acqtarget.[DefaultSRPremium]		= acqsource.[DefaultSRPremium]		
+							,acqtarget.[EOYReporting]			= acqsource.[EOYReporting]			
+							,acqtarget.[ForeignPhone]			= acqsource.[ForeignPhone]			
+							,acqtarget.[HUDID]					= acqsource.[HUDID]					
+							,acqtarget.[MERSFlow]				= acqsource.[MERSFlow]				
+							,acqtarget.[MismoSRExport]			= acqsource.[MismoSRExport]			
+							,acqtarget.[Name]					= acqsource.[Name]					
+							,acqtarget.[PhoneCountryCode]		= acqsource.[PhoneCountryCode]		
+							,acqtarget.[PhoneNumber]			= acqsource.[PhoneNumber]			
+							,acqtarget.[PmtsPayeeID]			= acqsource.[PmtsPayeeID]			
+							,acqtarget.[POPerDiemCalc]			= acqsource.[POPerDiemCalc]			
+							,acqtarget.[PurchAdviceImport]		= acqsource.[PurchAdviceImport]		
+							,acqtarget.[SalesAdviceImport]		= acqsource.[SalesAdviceImport]
+							,acqtarget.[SRGoodbyeLetter]		= acqsource.[SRGoodbyeLetter]	
+							,acqtarget.[SRGoodbyeLetterDays]	= acqsource.[SRGoodbyeLetterDays]
+							,acqtarget.[State]					= acqsource.[State]			
+							,acqtarget.[TimeZone]				= acqsource.[TimeZone]	
+							,acqtarget.[ToleranceByBalType]		= acqsource.[ToleranceByBalType]
+							,acqtarget.[TollFreeNum]			= acqsource.[TollFreeNum]			
+							,acqtarget.[TotalTolerance]			= acqsource.[TotalTolerance]		
+							,acqtarget.[UseTolerances]			= acqsource.[UseTolerances]			
+							,acqtarget.[ZeroBalances]			= acqsource.[ZeroBalances]
+							,acqtarget.[Zip]					= acqsource.[Zip]	
+						when not matched by source then
+						--	when data is in the target table but not in the source table delete the data from the target table
+							delete
+						when not matched by target then
+						--	when data not in the target table insert it from the source table
+						insert (Code, [Name], ContactName, AddLine1, AddLine2, City, [State], Zip, TollFreeNum, HUDID
+								, POPerDiemCalc, DefaultSRPremium, DefaultDiscount, MERSFlow, SRGoodbyeLetterDays
+								, SRGoodbyeLetter, PmtsPayeeID, EOYReporting, UseTolerances, ToleranceByBalType
+								, TotalTolerance, ZeroBalances, SalesAdviceImport, PurchAdviceImport, MismoSRExport
+								, Country, ForeignPhone, PhoneCountryCode, CityCode, PhoneNumber, TimeZone)
+						values (Code, [Name], ContactName, AddLine1, AddLine2, City, [State], Zip, TollFreeNum, HUDID
+								, POPerDiemCalc, DefaultSRPremium, DefaultDiscount, MERSFlow, SRGoodbyeLetterDays
+								, SRGoodbyeLetter, PmtsPayeeID, EOYReporting, UseTolerances, ToleranceByBalType
+								, TotalTolerance, ZeroBalances, SalesAdviceImport, PurchAdviceImport, MismoSRExport
+								, Country, ForeignPhone, PhoneCountryCode, CityCode, PhoneNumber, TimeZone);
+				commit tran U
+			end
+--######################################################################################################################		
+		else if   upper(@tblnme) = 'COUNTRY' 
+			begin
+				begin tran U
+					merge into Service_July25.dbo.Country as acqtarget
+						using ServiceControl.dbo.Country_Staging as acqsource
+						on acqtarget.CountryCode = acqsource.CountryCode 
+						--	When records are matched in both tables, update the records in the target table 
+						when matched then
+							update set
+							acqtarget.[CountryCode]			= acqsource.[CountryCode]	
+							,acqtarget.[CountryName]		= acqsource.[CountryName]	
+							,acqtarget.[SystemCode]			= acqsource.[SystemCode]		
+							,acqtarget.[CreditRptCode]		= acqsource.[CreditRptCode]	
+							,acqtarget.[FormatCode]			= acqsource.[FormatCode]		
+							,acqtarget.[CurrencyType]		= acqsource.[CurrencyType]	
+							,acqtarget.[CityDropList]		= acqsource.[CityDropList]	
+						when not matched by source then
+						--	when data is in the target table but not in the source table delete the data from the target table
+							delete
+						when not matched by target then
+						--	when data not in the target table insert it from the source table
+						insert (CountryCode, CountryName, SystemCode, CreditRptCode, FormatCode, CurrencyType, CityDropList)
+						values (CountryCode, CountryName, SystemCode, CreditRptCode, FormatCode, CurrencyType, CityDropList);
+				commit tran U
+			end
+--######################################################################################################################	
+		else if   upper(@tblnme) = 'INVESTOR' 
+			begin
+				begin tran U
+					merge into Service_July25.dbo.Investor as acqtarget
+						using ServiceControl.dbo.Investor_staging as acqsource
+						on acqtarget.InvestorID = acqsource.InvestorID 
+						--	When records are matched in both tables, update the records in the target table 
+						when matched then
+							update set
+								acqtarget.[InvestorID]						= acqsource.[InvestorID]
+								,acqtarget.[Name]							= acqsource.[Name]
+								,acqtarget.[AddressLine1]					= acqsource.[AddressLine1]	
+								,acqtarget.[AddressLine2]					= acqsource.[AddressLine2]
+								,acqtarget.[City]							= acqsource.[City]
+								,acqtarget.[State]							= acqsource.[State]
+								,acqtarget.[Zip]							= acqsource.[Zip]
+								,acqtarget.[Phone]							= acqsource.[Phone]
+								,acqtarget.[OutsideInvestor]				= acqsource.[OutsideInvestor]
+								,acqtarget.[PmtRule]						= acqsource.[PmtRule]
+								,acqtarget.[MonthendDelq]					= acqsource.[MonthendDelq]
+								,acqtarget.[LastCutoffDate]					= acqsource.[LastCutoffDate]
+								,acqtarget.[NextCutoffDate]					= acqsource.[NextCutoffDate]
+								,acqtarget.[CutoffDay]						= acqsource.[CutoffDay]
+								,acqtarget.[ServicerID]						= acqsource.[ServicerID]
+								,acqtarget.[InvLoanIDLength]				= acqsource.[InvLoanIDLength]
+								,acqtarget.[InterestAccrual]				= acqsource.[InterestAccrual]
+								,acqtarget.[ReportingType]					= acqsource.[ReportingType]
+								,acqtarget.[PrintOptions]					= acqsource.[PrintOptions]
+								,acqtarget.[PriorLastCutoffDate]			= acqsource.[PriorLastCutoffDate]
+								,acqtarget.[CreditBureauCode]				= acqsource.[CreditBureauCode]
+								,acqtarget.[ReportPending]					= acqsource.[ReportPending]
+								,acqtarget.[AutoFundPools]					= acqsource.[AutoFundPools]
+								,acqtarget.[AccrueSvcFee]					= acqsource.[AccrueSvcFee]
+								,acqtarget.[PrepayPenaltyRemit]				= acqsource.[PrepayPenaltyRemit]
+								,acqtarget.[PMICancelRule]					= acqsource.[PMICancelRule]
+								,acqtarget.[RemoveLowBalLns]				= acqsource.[RemoveLowBalLns]
+								,acqtarget.[NoFASBAmort]					= acqsource.[NoFASBAmort]
+								,acqtarget.[DMSInvestorID]					= acqsource.[DMSInvestorID]
+								,acqtarget.[AttyReferralInvestorCategory]	= acqsource.[AttyReferralInvestorCategory]
+								,acqtarget.[IsDefaultSetup]					= acqsource.[IsDefaultSetup]
+								,acqtarget.[NonPrimaryInvestorID]			= acqsource.[NonPrimaryInvestorID]
+								,acqtarget.[NonPrimaryPoolGroup]			= acqsource.[NonPrimaryPoolGroup]
+								,acqtarget.[DefaultInvLoanNumber]			= acqsource.[DefaultInvLoanNumber]
+								,acqtarget.[Country]						= acqsource.[Country]
+								,acqtarget.[ForeignPhone]					= acqsource.[ForeignPhone]
+								,acqtarget.[PhoneCountryCode]				= acqsource.[PhoneCountryCode]
+								,acqtarget.[CityCode]						= acqsource.[CityCode]
+								,acqtarget.[TaxIDNumber]					= acqsource.[TaxIDNumber]
+								,acqtarget.[TINType]						= acqsource.[TINType]
+								,acqtarget.[FnmaReporting]					= acqsource.[FnmaReporting]
+						when not matched by source then
+						--	when data is in the target table but not in the source table delete the data from the target table
+							delete
+						when not matched by target then
+						--	when data not in the target table insert it from the source table
+						insert ([InvestorID], [Name], [AddressLine1], [AddressLine2], [City], [State], [Zip], [Phone], [OutsideInvestor]
+								,[PmtRule], [MonthendDelq], [LastCutoffDate], [NextCutoffDate], [CutoffDay], [ServicerID], [InvLoanIDLength]
+								,[InterestAccrual], [ReportingType], [PrintOptions], [PriorLastCutoffDate], [CreditBureauCode], [ReportPending]
+								,[AutoFundPools], [AccrueSvcFee], [PrepayPenaltyRemit], [PMICancelRule], [RemoveLowBalLns], [NoFASBAmort]
+								,[DMSInvestorID], [AttyReferralInvestorCategory], [IsDefaultSetup], [NonPrimaryInvestorID] ,[NonPrimaryPoolGroup]
+								,[DefaultInvLoanNumber], [Country], [ForeignPhone], [PhoneCountryCode], [CityCode], [TaxIDNumber]
+								,[TINType], [FnmaReporting])
+						values ([InvestorID], [Name], [AddressLine1], [AddressLine2], [City], [State], [Zip], [Phone], [OutsideInvestor]
+								,[PmtRule], [MonthendDelq], [LastCutoffDate], [NextCutoffDate], [CutoffDay], [ServicerID], [InvLoanIDLength]
+								,[InterestAccrual], [ReportingType], [PrintOptions], [PriorLastCutoffDate], [CreditBureauCode], [ReportPending]
+								,[AutoFundPools], [AccrueSvcFee], [PrepayPenaltyRemit], [PMICancelRule], [RemoveLowBalLns], [NoFASBAmort]
+								,[DMSInvestorID], [AttyReferralInvestorCategory], [IsDefaultSetup], [NonPrimaryInvestorID] ,[NonPrimaryPoolGroup]
+								,[DefaultInvLoanNumber], [Country], [ForeignPhone], [PhoneCountryCode], [CityCode], [TaxIDNumber]
+								,[TINType], [FnmaReporting]);
+				commit tran U
+			end
+--######################################################################################################################
+	else if   upper(@tblnme) = 'PROPERTYTYPE' 
+			begin
+				begin tran U
+					merge into Service_July25.dbo.PropertyType as acqtarget
+						using ServiceControl.dbo.PropertyType_Staging as acqsource
+						on acqtarget.Code = acqsource.Code 
+						--	When records are matched in both tables, update the records in the target table 
+						when matched then
+							update set
+							acqtarget.[Code]					= acqsource.[Code]	
+							,acqtarget.[Name]					= acqsource.[Name]	
+							,acqtarget.[DefaultSystemCode]		= acqsource.[DefaultSystemCode]		
+							,acqtarget.[AttyReferralSystemCode]	= acqsource.[AttyReferralSystemCode]	
+							,acqtarget.[PropertyCollateralType]	= acqsource.[PropertyCollateralType]		
+							,acqtarget.[TaxServiceCode]			= acqsource.[TaxServiceCode]	
+						when not matched by source then
+						--	when data is in the target table but not in the source table delete the data from the target table
+							delete
+						when not matched by target then
+						--	when data not in the target table insert it from the source table
+						insert ([Code], [Name], [DefaultSystemCode], [AttyReferralSystemCode], [PropertyCollateralType], [TaxServiceCode])
+						values ([Code], [Name], [DefaultSystemCode], [AttyReferralSystemCode], [PropertyCollateralType], [TaxServiceCode]);
+				commit tran U
+			end
+--######################################################################################################################
+		else --
+			begin
+				print 'The table name ***  ' + @tblnme + '  *** did not match.'	
+			end
+	
+	end try								
+		
+		begin catch
+			print 'An error occurred please review the below messages:'
+			SELECT ERROR_NUMBER() AS ErrorNumber
+			,ERROR_SEVERITY() AS ErrorSeverity
+			,ERROR_STATE() AS ErrorState
+			,ERROR_PROCEDURE() AS ErrorProcedure
+			,ERROR_LINE() AS ErrorLine
+			,ERROR_MESSAGE() AS ErrorMessage;
+			rollback tran U
+		end catch
+
+	
+	
+end;	-- end create proc
+
+
+GO
+
+

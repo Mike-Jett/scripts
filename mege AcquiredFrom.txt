@@ -1,0 +1,52 @@
+use Sandbox
+select count(*) from  [dbo].[AcquiredFrom_Staging]  -- 841
+select count(*) from dbo.AcquiredFrom_Service  -- 854
+use Sandbox
+
+
+begin tran U
+	merge into sandbox.dbo.AcquiredFrom_Service as acqtarget
+		using sandbox.dbo.AcquiredFrom_Staging as acqsource
+			on acqtarget.code = acqsource.code
+				--When records are matched, update the records if there is any change
+				when matched then
+					update set 
+							 acqtarget.[AddLine1]				= acqsource.[AddLine1]
+							,acqtarget.[AddLine2]				= acqsource.[AddLine2]				
+							,acqtarget.[City]					= acqsource.[City]					
+							,acqtarget.[CityCode]				= acqsource.[CityCode]				
+							,acqtarget.[Code]					= acqsource.[Code]					
+							,acqtarget.[ContactName]			= acqsource.[ContactName]			
+							,acqtarget.[Country]				= acqsource.[Country]				
+							,acqtarget.[DefaultDiscount]		= acqsource.[DefaultDiscount]		
+							,acqtarget.[DefaultSRPremium]		= acqsource.[DefaultSRPremium]		
+							,acqtarget.[EOYReporting]			= acqsource.[EOYReporting]			
+							,acqtarget.[ForeignPhone]			= acqsource.[ForeignPhone]			
+							,acqtarget.[HUDID]					= acqsource.[HUDID]					
+							,acqtarget.[MERSFlow]				= acqsource.[MERSFlow]				
+							,acqtarget.[MismoSRExport]			= acqsource.[MismoSRExport]			
+							,acqtarget.[Name]					= acqsource.[Name]					
+							,acqtarget.[PhoneCountryCode]		= acqsource.[PhoneCountryCode]		
+							,acqtarget.[PhoneNumber]			= acqsource.[PhoneNumber]			
+							,acqtarget.[PmtsPayeeID]			= acqsource.[PmtsPayeeID]			
+							,acqtarget.[POPerDiemCalc]			= acqsource.[POPerDiemCalc]			
+							,acqtarget.[PurchAdviceImport]		= acqsource.[PurchAdviceImport]		
+							,acqtarget.[SalesAdviceImport]		= acqsource.[SalesAdviceImport]
+							,acqtarget.[SRGoodbyeLetter]		= acqsource.[SRGoodbyeLetter]	
+							,acqtarget.[SRGoodbyeLetterDays]	= acqsource.[SRGoodbyeLetterDays]
+							,acqtarget.[State]					= acqsource.[State]			
+							,acqtarget.[TimeZone]				= acqsource.[TimeZone]	
+							,acqtarget.[ToleranceByBalType]		= acqsource.[ToleranceByBalType]
+							,acqtarget.[TollFreeNum]			= acqsource.[TollFreeNum]			
+							,acqtarget.[TotalTolerance]			= acqsource.[TotalTolerance]		
+							,acqtarget.[UseTolerances]			= acqsource.[UseTolerances]			
+							,acqtarget.[ZeroBalances]			= acqsource.[ZeroBalances]
+							,acqtarget.[Zip]					= acqsource.[Zip]	
+				when not matched by source then
+					delete;
+										
+		
+
+
+--	commit tran U
+--	rollback tran U

@@ -43,6 +43,7 @@ DEALLOCATE looping_cursor;
 SELECT DBName
     ,ISNULL(LastGoodDBCC,'1900-01-01 00:00:00.000') AS 'LastGoodDBCC'
 FROM #Results
+order by DBName
 
 DROP TABLE #temp
 DROP TABLE #Results

@@ -1,0 +1,39 @@
+use CONTACTPRO_MJett_Testing
+
+declare @destfilenum int
+declare @sourcefilenum int
+
+set IDENTITY_INSERT [dbo].[A_Mike_Jett_Log] on
+
+begin try
+
+set @destfilenum =	(select max(pkey) from [dbo].[A_Mike_Jett_Log] )
+	if @destfilenum is null	-- for initial load to have a number to use
+		set @destfilenum = 0
+					print 'Destination number of last PKEY: '
+					print  @destfilenum 
+					print '**************************************'
+set @sourcefilenum = (select max(pkey) from [dbo].[AGENT_STATUS_LOG])
+					print 'Source number of last PKEY: '
+					print  @sourcefilenum
+					print '**************************************'
+if @destfilenum < @sourcefilenum 
+		
+	insert into dbo.A_Mike_Jett_Log
+		(PKEY, AGENTID, STATUS, TIMESTAMP)
+	select PKEY, AGENTID, STATUS, TIMESTAMP
+		from [dbo].[AGENT_STATUS_LOG] sasl where sasl.pkey > @destfilenum
+
+	set IDENTITY_INSERT [dbo].[A_Mike_Jett_Log] off
+end try								
+		
+		begin catch
+			print 'An error occurred please review the below messages:'
+			SELECT ERROR_NUMBER() AS ErrorNumber
+			,ERROR_SEVERITY() AS ErrorSeverity
+			,ERROR_STATE() AS ErrorState
+			,ERROR_PROCEDURE() AS ErrorProcedure
+			,ERROR_LINE() AS ErrorLine
+			,ERROR_MESSAGE() AS ErrorMessage;
+			rollback tran U
+		end catch

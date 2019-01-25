@@ -1,0 +1,79 @@
+SET NOCOUNT ON;
+
+DECLARE @debug BIT;
+SELECT @debug = 1;
+
+DECLARE @commands TABLE
+(
+    id INT IDENTITY(1, 1) NOT NULL,
+    command sysname NOT NULL
+);
+
+INSERT @commands
+(
+    command
+)
+SELECT CASE
+           WHEN NOT EXISTS
+                    (
+                        SELECT 1 FROM sys.objects so WHERE so.schema_id = sch.schema_id
+                    ) THEN
+               N'DROP SCHEMA [' + sch.name + N'];'
+           ELSE
+               N'PRINT (''Schema ' + sch.name + ' has objects and cannot be dropped'')'
+       END
+FROM sys.schemas sch
+WHERE EXISTS
+(
+    SELECT 1
+    FROM sys.database_principals dp
+    WHERE sch.principal_id = dp.principal_id
+          AND NOT EXISTS
+    (
+        SELECT 1 FROM sys.server_principals sp WHERE sp.sid = dp.sid
+    )
+          AND type NOT IN ( 'R' )
+          AND
+          (
+              sid IS NOT NULL
+              AND sid <> 0
+          )
+);
+
+INSERT @commands
+(
+    command
+)
+SELECT N'DROP USER [' + name + N'];'
+FROM sys.database_principals dp
+WHERE NOT EXISTS
+(
+    SELECT 1 FROM sys.server_principals sp WHERE sp.sid = dp.sid
+)
+      AND type NOT IN ( 'R' )
+      AND
+      (
+          sid IS NOT NULL
+          AND sid <> 0
+      );
+
+DECLARE @command sysname;
+DECLARE @loop INT,
+        @loopmax INT;
+SELECT @loop = 1,
+       @loopmax = MAX(id)
+FROM @commands;
+
+WHILE @loop <= @loopmax
+BEGIN
+    SELECT @command = command
+    FROM @commands
+    WHERE id = @loop;
+
+    IF @debug = 0
+        EXECUTE (@command);
+    ELSE
+        PRINT (@command);
+
+    SELECT @loop = @loop + 1;
+END;
